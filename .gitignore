@@ -217,3 +217,5 @@ __marimo__/
 
 # pycache
 __pycache__/
+MCP-Server/utils/azure_table.py
+MCP-Server/utils/azure_table.py

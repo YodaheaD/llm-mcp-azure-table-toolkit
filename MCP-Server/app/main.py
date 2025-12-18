@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 from utils.azure_table import get_table_client
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 # --------------------------
 # Logging
@@ -52,11 +52,32 @@ async def query_table_entities(filter: Optional[str] = None, top: Optional[int] 
         count = 0
         max_results = top or 100
 
+        # limit max_results to 100 , regardless of input
+        ## - this protects against hallucinations and excessive data retrieval from llm prompts
+        if max_results > 100:
+            max_results = 100
+            logging.info("Capping max_results to 100")
+        
         logging.info(f"Querying table with filter: {filter}, top={max_results}, select={select}")
+
+        # Define columns that need to be lowercased
+        neededLowercaseColumns = ["City", "Country"]
+
+        # Always include RowKey in the select fields
+        select_fields = None
+        if select:
+            fields = [s.strip() for s in select.split(",")]
+            # Convert matching columns to lowercase
+            for i, field in enumerate(fields):
+                if field in neededLowercaseColumns:
+                    fields[i] = field.lower()
+            if "RowKey" not in fields:
+                fields.append("RowKey")
+            select_fields = fields
 
         async for entity in table_client.query_entities(
             query_filter=filter,
-            select=[s.strip() for s in select.split(",")] if select else None
+            select=select_fields
         ):
             if count >= max_results:
                 break
@@ -74,12 +95,11 @@ async def query_table_entities(filter: Optional[str] = None, top: Optional[int] 
                     "select": select or "all",
                     "resultCount": count,
                     "entities": results,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 })
             }
         ]
     }
-
 
 tools = {
     "countTableEntities": count_table_entities,

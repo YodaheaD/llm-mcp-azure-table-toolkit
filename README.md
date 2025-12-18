@@ -38,6 +38,7 @@ Model Context Protocol server providing Azure Table Storage integration.
 
 ## Key Features
 
+- **🎯 User-Friendly Chat Interface**: Simple `/chat` endpoint with web UI for easy interaction
 - **🔄 Distributed Architecture**: Modular design with clear separation of concerns
 - **📡 OpenAI-Compatible API**: Drop-in replacement for OpenAI API calls
 - **⚡ Streaming Support**: Real-time response streaming with Server-Sent Events
@@ -45,6 +46,21 @@ Model Context Protocol server providing Azure Table Storage integration.
 - **☁️ Cloud Storage**: Azure Table Storage for persistent data
 - **🔍 Advanced Querying**: Filtered and paginated data retrieval
 - **📝 Type Safety**: Full Pydantic validation and type hints
+
+## 🌟 Quick Demo - Chat Interface
+
+The project includes a **user-friendly web interface** that makes it easy to interact with the LLM and tools without any setup:
+
+![LLM Chat Interface](UI_Screenshot.png)
+
+**✨ Simplest way to get started:**
+1. Start the LM-Server and MCP-Server (see [Running the System](#running-the-system))
+2. Open the web UI and ask questions like:
+   - "How many entities are in the Azure table?"
+   - "Show me the first 5 records where city is Atlanta"
+   - "Return the rowKey values of entries with country as Ireland"
+
+The interface automatically handles the complete pipeline: **User Question → LLM → Tool Selection → Data Retrieval → Formatted Response**
 
 ## Quick Start
 
@@ -93,22 +109,42 @@ Model Context Protocol server providing Azure Table Storage integration.
    uvicorn app.main:app --reload --port 8001
    ```
 
-3. **Run MCP-Client** (Terminal 3)
+3. **[RECOMMENDED] Use the Web Interface** (Easiest Option)
+   - The LM-Server includes a built-in `/chat` endpoint that handles everything
+   - Open your web browser and use the included UI for instant interaction
+   - **No additional client setup required!**
+
+   **Alternative:** Run MCP-Client separately (Terminal 3)
    ```bash
    cd MCP-Client
    python client.py
    ```
 
-## Usage Example
+## 🎯 Usage Examples
 
-Once all services are running, you can ask questions that require data retrieval:
+### **Option 1: Web Interface (Recommended)**
+Once LM-Server and MCP-Server are running:
+1. Open the web UI at `http://localhost:5173`
+2. Type natural language questions:
+   - "How many entities are in the Azure table?"
+   - "Show me the first 5 records where city is Atlanta"
+   - "Return the rowKey values for entries with country as Ireland"
 
+### **Option 2: Direct API Calls**
+```bash
+# Use the user-friendly /chat endpoint
+curl -X POST "http://localhost:8000/chat" \
+     -H "Content-Type: application/json" \
+     -d '{"input": "How many entities are in the Azure table?"}'
+```
+
+### **Option 3: MCP-Client (Advanced)**
 ```python
-# Example question that triggers tool usage
+# Example using the standalone client
 question = "How many entities are in the Azure table?"
 
 # The system will:
-# 1. Send question to LLM-Server
+# 1. Send question to LM-Server
 # 2. LLM determines tool needed
 # 3. MCP-Client calls MCP-Server
 # 4. Returns formatted response

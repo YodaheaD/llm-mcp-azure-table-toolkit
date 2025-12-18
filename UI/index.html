@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enter Prompt</title>
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar open">
+      <h2>Options</h2>
+      
+      <!-- Prompt Examples Dropdown -->
+      <div class="dropdown-container">
+        <button id="examples-toggle" class="dropdown-toggle">
+          Prompt Examples ▼
+        </button>
+        <div id="examples-content" class="dropdown-content hidden">
+          <div id="examples-list" class="examples-list">
+            <!-- Examples will be loaded here -->
+          </div>
+        </div>
+        <div class="separator"></div>
+        <div class="history-container">
+         <h3 id="History"   >
+          Prompt History
+        </h3>
+         <div id="history-list" class="history-list">
+          <!-- History items will be added here -->
+         <div id="prompt-history" class="prompt-history">
+         </div>
+        
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main layout -->
+    <div id="main" class="main">
+      <button id="toggle-sidebar" class="sidebar-toggle">☰</button>
+
+      <div id="app" class="container">
+        <h1>Enter Prompt</h1>
+
+        <textarea
+          id="prompt"
+          rows="4"
+          placeholder="Type your prompt here..."
+        ></textarea>
+
+        <div class="button-container"><button id="submit">Submit</button></div>
+
+        <div id="response-container">
+          <div id="response-text" class="response-text"></div>
+          <button id="view-full-response" class="view-full-btn hidden">View Full Response</button>
+          <pre id="response-full" class="response-full hidden"></pre>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

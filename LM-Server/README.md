@@ -16,6 +16,12 @@ LM-Server is a FastAPI-based local language model server that provides OpenAI-co
 
 ### 📡 API Endpoints
 
+#### 🎯 **User-Friendly Chat Interface (Recommended)**
+- `POST /chat` - **Complete LLM + Tool pipeline in one call**
+  - Perfect for web UIs and simple integrations
+  - Handles LLM inference, tool calling, and MCP-Server communication
+  - Requires minimal setup - just start servers and go!
+
 #### Basic Generation
 - `POST /generate` - Single completion
 - `POST /generate/stream` - Streaming completion
@@ -69,7 +75,49 @@ cd LM-Server
 uvicorn app.main:app --reload --port 8000
 ```
 
+### 🎯 **Web Interface Integration**
+
+The LM-Server includes built-in CORS configuration and a `/chat` endpoint specifically designed for web interfaces:
+
+![LLM Chat Interface](../UI_Screenshot.png)
+
+**Features:**
+- **Zero-setup interaction**: Just type natural language questions
+- **Automatic tool calling**: LLM intelligently selects and executes tools
+- **Real-time responses**: Direct integration with MCP-Server
+- **User-friendly**: No need to understand JSON APIs or tool schemas
+
+**Example Interactions:**
+- "Count all table entries" → Automatically calls `countTableEntities`
+- "Show me 5 users from Atlanta" → Automatically calls `queryTableEntities` with proper filters
+- "What are the rowKeys for Irish entries?" → Smart field selection and filtering
+
 ### API Examples
+
+#### 🌟 **Chat Interface (Simplest)**
+```bash
+# Ask natural language questions - the system handles everything!
+curl -X POST "http://localhost:8000/chat" \
+     -H "Content-Type: application/json" \
+     -d '{"input": "How many entities are in the Azure table?"}'
+
+# Response: Complete tool execution results
+{
+  "response": {
+    "content": [{
+      "type": "text",
+      "text": "The Azure Table 'mainData' contains 42 entities matching filter: 'none'."
+    }]
+  }
+}
+```
+
+```bash
+# Complex queries work seamlessly
+curl -X POST "http://localhost:8000/chat" \
+     -H "Content-Type: application/json" \
+     -d '{"input": "Show me the first 5 records where city is Atlanta"}'
+```
 
 #### Basic Generation
 ```bash
@@ -115,6 +163,19 @@ curl -X POST "http://localhost:8000/v1/chat/completions" \
 
 ### Request Models
 
+#### ChatRequest (for `/chat` endpoint)
+```python
+# Simple JSON request
+{
+    "input": "Your natural language question here"
+}
+
+# Examples:
+# {"input": "How many entities are in the table?"}
+# {"input": "Show me 5 records where city is Paris"}
+# {"input": "Return rowKeys for entries with status active"}
+```
+
 #### GenerateRequest
 ```python
 class GenerateRequest(BaseModel):
@@ -141,6 +202,28 @@ class ChatMessage(BaseModel):
 ```
 
 ### Response Models
+
+#### ChatResponse (from `/chat` endpoint)
+```python
+{
+  "response": {
+    "content": [{
+      "type": "text",
+      "text": "The Azure Table 'mainData' contains 42 entities matching filter: 'status eq 'active''."
+    }]
+  }
+}
+
+# For query results:
+{
+  "response": {
+    "content": [{
+      "type": "text", 
+      "text": "{\"table\": \"mainData\", \"entities\": [{...}], \"resultCount\": 5}"
+    }]
+  }
+}
+```
 
 #### GenerateResponse
 ```python
@@ -255,9 +338,30 @@ python run.py
 ## Integration
 
 This server integrates with:
-- **MCP-Client**: Provides LLM responses for tool calling
-- **External Tools**: Any OpenAI-compatible client
-- **Web Applications**: Via REST API
+- **🎯 Web Applications**: **Primary integration via `/chat` endpoint** - requires minimal setup
+- **MCP-Server**: Direct integration for tool execution (when using `/chat`)
+- **MCP-Client**: Provides LLM responses for tool calling (alternative architecture)
+- **External Tools**: Any OpenAI-compatible client via `/v1/chat/completions`
+- **Custom Applications**: Via any of the REST API endpoints
+
+### Integration Architectures
+
+#### **Recommended: Direct Web Integration**
+```
+Web UI → LM-Server (/chat) → MCP-Server → Azure Table
+```
+- ✅ Simplest setup
+- ✅ Single endpoint handles everything
+- ✅ Built-in error handling
+- ✅ Natural language interface
+
+#### **Advanced: Modular Architecture**
+```
+Client → LM-Server (/v1/chat/completions) → MCP-Client → MCP-Server → Azure Table
+```
+- 🔧 More complex setup
+- 🔧 Better for custom tool orchestration
+- 🔧 Requires separate client implementation
 
 ## Contributing
 

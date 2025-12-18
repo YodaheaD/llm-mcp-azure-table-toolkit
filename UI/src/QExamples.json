@@ -1,0 +1,5 @@
+[
+  "Return the first 20 entries where country equals France. Include only the city and country fields.",
+  "How many entries in our table have city as Atlanta?",
+  "Return the rowKey values of entries with country as Ireland"
+]
